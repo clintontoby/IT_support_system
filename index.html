@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SDMA Support Desk</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <strong>SDMA</strong>
+            <small>Support Desk</small>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" id="navTabs">
+          <button class="nav-item active" data-view="dashboard" type="button">
+            <span class="nav-icon">D</span> Dashboard
+          </button>
+          <button class="nav-item" data-view="tickets" type="button">
+            <span class="nav-icon">T</span> Tickets
+          </button>
+          <button class="nav-item" data-view="outages" type="button">
+            <span class="nav-icon">O</span> Outages
+          </button>
+          <button class="nav-item" data-admin-only="true" data-view="clients" type="button">
+            <span class="nav-icon">C</span> Clients
+          </button>
+          <button class="nav-item" data-view="devices" type="button">
+            <span class="nav-icon">N</span> Network
+          </button>
+          <button class="nav-item" data-view="knowledge" type="button">
+            <span class="nav-icon">K</span> Knowledge
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="mini-label">Current Role</div>
+          <select id="roleSelect" aria-label="Current role">
+            <option value="admin">Admin</option>
+            <option value="lead">Team Lead: Mr Kunle</option>
+            <option value="field">Field Engineer</option>
+            <option value="client">Client Portal</option>
+          </select>
+          <button class="ghost-button full" id="resetDemo" type="button">Reset demo data</button>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">ISP operations console</p>
+            <h1 id="viewTitle">Dashboard</h1>
+          </div>
+          <div class="topbar-actions">
+            <label class="search-box">
+              <span>Search</span>
+              <input id="globalSearch" type="search" placeholder="ticket, client, location..." />
+            </label>
+            <button class="primary-button" id="openTicketComposer" type="button">
+              <span class="button-icon">+</span> New ticket
+            </button>
+          </div>
+        </header>
+
+        <section class="notice-row" id="roleNotice"></section>
+
+        <section class="view active" id="dashboardView" aria-labelledby="dashboardTitle">
+          <h2 id="dashboardTitle" class="sr-only">Dashboard</h2>
+          <div class="metric-grid" id="metricGrid"></div>
+
+          <div class="dashboard-layout">
+            <section class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Live tickets</p>
+                  <h2 id="priorityQueueTitle">Priority queue</h2>
+                </div>
+                <button class="ghost-button" data-view-target="tickets" type="button">View all</button>
+              </div>
+              <div class="queue-list" id="priorityQueue"></div>
+            </section>
+
+            <section class="panel network-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">SDMA network</p>
+                  <h2>Branch signal board</h2>
+                </div>
+                <span class="status-pill warning" id="outageCount"></span>
+              </div>
+              <div class="network-visual" id="networkVisual" aria-label="Network branch health map"></div>
+            </section>
+          </div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Operational handoff</p>
+                <h2>Today&apos;s field and configuration work</h2>
+              </div>
+            </div>
+            <div class="handoff-grid" id="handoffGrid"></div>
+          </section>
+        </section>
+
+        <section class="view" id="ticketsView" aria-labelledby="ticketsTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Service desk</p>
+              <h2 id="ticketsTitle">Ticket command center</h2>
+            </div>
+            <div class="filter-row">
+              <select id="statusFilter" aria-label="Filter by status">
+                <option value="all">All statuses</option>
+                <option>Open</option>
+                <option>In Progress</option>
+                <option>Awaiting Configuration</option>
+                <option>Escalated</option>
+                <option>Resolved</option>
+              </select>
+              <select id="priorityFilter" aria-label="Filter by priority">
+                <option value="all">All priorities</option>
+                <option>Critical</option>
+                <option>High</option>
+                <option>Medium</option>
+                <option>Low</option>
+              </select>
+            </div>
+          </div>
+          <div class="ticket-board" id="ticketBoard"></div>
+        </section>
+
+        <section class="view" id="outagesView" aria-labelledby="outagesTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Area incidents</p>
+              <h2 id="outagesTitle">Outage board</h2>
+            </div>
+            <button class="secondary-button" id="addOutage" type="button">Log outage</button>
+          </div>
+          <div class="outage-grid" id="outageGrid"></div>
+        </section>
+
+        <section class="view" id="clientsView" aria-labelledby="clientsTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Enterprise accounts</p>
+              <h2 id="clientsTitle">Clients and branch sites</h2>
+            </div>
+            <button class="primary-button" id="addClient" type="button">
+              <span class="button-icon">+</span> Add enterprise
+            </button>
+          </div>
+          <div class="client-grid" id="clientGrid"></div>
+        </section>
+
+        <section class="view" id="devicesView" aria-labelledby="devicesTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Configuration desk</p>
+              <h2 id="devicesTitle">Devices awaiting checks</h2>
+            </div>
+          </div>
+          <div class="device-table-wrap">
+            <table class="device-table">
+              <thead>
+                <tr>
+                  <th>Site</th>
+                  <th>Device</th>
+                  <th>IP / VLAN</th>
+                  <th>Owner</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="deviceRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="view" id="knowledgeView" aria-labelledby="knowledgeTitle">
+          <div class="view-heading">
+            <div>
+              <p class="eyebrow">Runbooks</p>
+              <h2 id="knowledgeTitle">Support knowledge base</h2>
+            </div>
+          </div>
+          <div class="kb-grid" id="knowledgeGrid"></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="modal" id="ticketModal">
+      <form method="dialog" class="modal-body" id="ticketForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">New report</p>
+            <h2>Create support ticket</h2>
+          </div>
+          <button class="icon-button" id="closeTicketModal" aria-label="Close" type="button">x</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Client
+            <select name="client" id="clientInput" required></select>
+          </label>
+          <label>
+            Branch / site
+            <select name="site" id="siteInput" required></select>
+          </label>
+          <label>
+            Issue type
+            <select name="type" required>
+              <option>No internet</option>
+              <option>Slow speed</option>
+              <option>Router offline</option>
+              <option>LOS / radio signal</option>
+              <option>Device configuration</option>
+              <option>Payment / account issue</option>
+            </select>
+          </label>
+          <label>
+            Priority
+            <select name="priority" required>
+              <option>High</option>
+              <option>Critical</option>
+              <option>Medium</option>
+              <option>Low</option>
+            </select>
+          </label>
+          <label>
+            Contact name
+            <input name="contact" placeholder="Branch contact" required />
+          </label>
+          <label>
+            Phone / WhatsApp
+            <input name="phone" placeholder="+234..." required />
+          </label>
+        </div>
+
+        <label>
+          Fault description
+          <textarea name="description" rows="4" placeholder="What is the client experiencing?" required></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancelTicketModal" type="button">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Create ticket</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="outageModal">
+      <form method="dialog" class="modal-body" id="outageForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Network incident</p>
+            <h2>Log outage</h2>
+          </div>
+          <button class="icon-button" id="closeOutageModal" aria-label="Close outage form" type="button">x</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Area / sector
+            <input name="area" placeholder="e.g. Lekki Sector" required />
+          </label>
+          <label>
+            Severity
+            <select name="severity" required>
+              <option>Major</option>
+              <option>Critical</option>
+              <option>Minor</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select name="status" required>
+              <option>Investigating</option>
+              <option>Monitoring</option>
+              <option>Resolved</option>
+            </select>
+          </label>
+          <label>
+            ETA
+            <input name="eta" placeholder="e.g. Today 4:30 PM" required />
+          </label>
+        </div>
+
+        <label>
+          Affected clients / locations
+          <textarea name="affected" rows="3" placeholder="One client, branch, estate, or site per line" required></textarea>
+        </label>
+
+        <label>
+          Current engineering update
+          <textarea name="update" rows="4" placeholder="What is known, who is checking it, and next action" required></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancelOutageModal" type="button">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Log outage</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="outageUpdateModal">
+      <form method="dialog" class="modal-body" id="outageUpdateForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Incident update</p>
+            <h2>Add outage update</h2>
+          </div>
+          <button class="icon-button" id="closeOutageUpdateModal" aria-label="Close outage update form" type="button">x</button>
+        </div>
+
+        <input name="outageId" id="outageUpdateId" type="hidden" />
+
+        <label>
+          Status
+          <select name="status" required>
+            <option>Investigating</option>
+            <option>Monitoring</option>
+            <option>Resolved</option>
+          </select>
+        </label>
+
+        <label>
+          Latest update
+          <textarea name="update" rows="4" placeholder="Add the latest field, NOC, or client-facing update" required></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancelOutageUpdateModal" type="button">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Save update</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="clientModal">
+      <form method="dialog" class="modal-body" id="clientForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Enterprise account</p>
+            <h2>Add enterprise</h2>
+          </div>
+          <button class="icon-button" id="closeClientModal" aria-label="Close enterprise form" type="button">x</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Enterprise name
+            <input name="name" placeholder="e.g. Zenith Bank" required />
+          </label>
+          <label>
+            Account type
+            <select name="tier" required>
+              <option>Banking</option>
+              <option>Enterprise</option>
+              <option>Residential managed sites</option>
+              <option>Government</option>
+              <option>Education</option>
+              <option>Healthcare</option>
+            </select>
+          </label>
+          <label>
+            Account owner
+            <input name="accountManager" placeholder="Admin" required />
+          </label>
+          <label>
+            Client contact desk
+            <input name="contact" placeholder="IT Operations Desk" required />
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancelClientModal" type="button">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Add enterprise</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="modal" id="siteModal">
+      <form method="dialog" class="modal-body" id="siteForm">
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Branch location</p>
+            <h2>Add branch</h2>
+          </div>
+          <button class="icon-button" id="closeSiteModal" aria-label="Close branch form" type="button">x</button>
+        </div>
+
+        <input name="clientId" id="siteClientId" type="hidden" />
+
+        <div class="form-grid">
+          <label>
+            Branch / site name
+            <input name="name" placeholder="e.g. Ikoyi Branch" required />
+          </label>
+          <label>
+            Location
+            <input name="location" placeholder="e.g. Ikoyi, Lagos" required />
+          </label>
+          <label>
+            SDMA link ID
+            <input name="link" placeholder="e.g. SDMA-Z1" required />
+          </label>
+          <label>
+            Current status
+            <select name="health" required>
+              <option>online</option>
+              <option>degraded</option>
+              <option>down</option>
+              <option>offline</option>
+            </select>
+          </label>
+          <label>
+            PRTG sensor ID
+            <input name="prtgSensorId" placeholder="Optional until PRTG is connected" />
+          </label>
+          <label>
+            PRTG sensor name
+            <input name="prtgSensorName" placeholder="Optional sensor/device label" />
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button class="ghost-button" id="cancelSiteModal" type="button">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Add branch</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
