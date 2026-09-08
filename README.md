@@ -2,19 +2,6 @@
 
 Fast MVP for an ISP/networking support desk workflow.
 
-## Run
-
-Open `index.html` directly in a browser, or serve this folder locally:
-
-```sh
-python3 -m http.server 4173
-```
-
-Then visit:
-
-```text
-http://127.0.0.1:4173/
-```
 
 ## Included Workflow
 
